@@ -13,7 +13,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background: linear-gradient(135deg, #1a2a6c, #0b172f);
             color: white;
             min-height: 100vh;
             padding: 20px;
@@ -195,10 +195,6 @@
             "projek6.jpg"
         ];
         
-        // Untuk demo, kita akan menggunakan gambar dari placeholder
-        // Dalam implementasi nyata, ganti dengan path gambar Anda
-        const placeholderBase = "https://picsum.photos/400/300?random=";
-        
         const gallery = document.getElementById('gallery');
         const modal = document.getElementById('imageModal');
         const modalImage = document.getElementById('modalImage');
@@ -214,9 +210,7 @@
             card.className = 'card';
             
             const img = document.createElement('img');
-            // Untuk demo, kita gunakan placeholder
-            // Dalam implementasi nyata, gunakan: img.src = imagePath;
-            img.src = `${placeholderBase}${index + 1}`;
+            img.src = imagePath;
             img.alt = `Gambar ${index + 1}`;
             img.className = 'card-image';
             
@@ -233,9 +227,7 @@
         // Fungsi untuk membuka modal dengan gambar yang dipilih
         function openModal(index) {
             currentImageIndex = index;
-            // Untuk demo, kita gunakan placeholder
-            // Dalam implementasi nyata, gunakan: modalImage.src = imageFiles[index];
-            modalImage.src = `${placeholderBase}${index + 1}`;
+            modalImage.src = imageFiles[index];
             modal.style.display = 'flex';
         }
         
@@ -247,17 +239,13 @@
         // Fungsi untuk menampilkan gambar berikutnya
         function showNextImage() {
             currentImageIndex = (currentImageIndex + 1) % imageFiles.length;
-            // Untuk demo, kita gunakan placeholder
-            // Dalam implementasi nyata, gunakan: modalImage.src = imageFiles[currentImageIndex];
-            modalImage.src = `${placeholderBase}${currentImageIndex + 1}`;
+            modalImage.src = imageFiles[currentImageIndex];
         }
         
         // Fungsi untuk menampilkan gambar sebelumnya
         function showPrevImage() {
             currentImageIndex = (currentImageIndex - 1 + imageFiles.length) % imageFiles.length;
-            // Untuk demo, kita gunakan placeholder
-            // Dalam implementasi nyata, gunakan: modalImage.src = imageFiles[currentImageIndex];
-            modalImage.src = `${placeholderBase}${currentImageIndex + 1}`;
+            modalImage.src = imageFiles[currentImageIndex];
         }
         
         // Memuat semua gambar ke dalam galeri
