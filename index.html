@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Album Card - Image Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+        
+        .card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+        }
+        
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close:hover {
+            color: #fdbb2d;
+        }
+        
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            font-size: 30px;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .prev {
+            left: 20px;
+        }
+        
+        .next {
+            right: 20px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .gallery {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .card-image {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Album Card Gallery</h1>
+            <p class="subtitle">Koleksi gambar tanpa deskripsi atau teks</p>
+        </header>
+        
+        <main>
+            <div class="gallery" id="gallery">
+                <!-- Gambar akan dimuat di sini melalui JavaScript -->
+            </div>
+        </main>
+        
+        <footer>
+            <p>&copy; 2023 Album Card Gallery. Semua gambar adalah contoh.</p>
+        </footer>
+    </div>
+    
+    <!-- Modal untuk menampilkan gambar dalam ukuran besar -->
+    <div class="modal" id="imageModal">
+        <span class="close" id="closeModal">&times;</span>
+        <button class="nav-btn prev" id="prevBtn">&#10094;</button>
+        <img class="modal-content" id="modalImage">
+        <button class="nav-btn next" id="nextBtn">&#10095;</button>
+    </div>
+
+    <script>
+        // Data gambar - hanya berisi nama file atau jalur file
+        const imageFiles = [
+            "projek1.jpg",
+            "projek2.jpg",
+            "projek3.jpg",
+            "projek4.jpg",
+            "projek5.jpg",
+            "projek6.jpg"
+        ];
+        
+        // Untuk demo, kita akan menggunakan gambar dari placeholder
+        // Dalam implementasi nyata, ganti dengan path gambar Anda
+        const placeholderBase = "https://picsum.photos/400/300?random=";
+        
+        const gallery = document.getElementById('gallery');
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const closeModal = document.getElementById('closeModal');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        let currentImageIndex = 0;
+        
+        // Fungsi untuk membuat card gambar
+        function createImageCard(imagePath, index) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            const img = document.createElement('img');
+            // Untuk demo, kita gunakan placeholder
+            // Dalam implementasi nyata, gunakan: img.src = imagePath;
+            img.src = `${placeholderBase}${index + 1}`;
+            img.alt = `Gambar ${index + 1}`;
+            img.className = 'card-image';
+            
+            card.appendChild(img);
+            
+            // Event listener untuk membuka modal saat gambar diklik
+            card.addEventListener('click', () => {
+                openModal(index);
+            });
+            
+            return card;
+        }
+        
+        // Fungsi untuk membuka modal dengan gambar yang dipilih
+        function openModal(index) {
+            currentImageIndex = index;
+            // Untuk demo, kita gunakan placeholder
+            // Dalam implementasi nyata, gunakan: modalImage.src = imageFiles[index];
+            modalImage.src = `${placeholderBase}${index + 1}`;
+            modal.style.display = 'flex';
+        }
+        
+        // Fungsi untuk menutup modal
+        function closeImageModal() {
+            modal.style.display = 'none';
+        }
+        
+        // Fungsi untuk menampilkan gambar berikutnya
+        function showNextImage() {
+            currentImageIndex = (currentImageIndex + 1) % imageFiles.length;
+            // Untuk demo, kita gunakan placeholder
+            // Dalam implementasi nyata, gunakan: modalImage.src = imageFiles[currentImageIndex];
+            modalImage.src = `${placeholderBase}${currentImageIndex + 1}`;
+        }
+        
+        // Fungsi untuk menampilkan gambar sebelumnya
+        function showPrevImage() {
+            currentImageIndex = (currentImageIndex - 1 + imageFiles.length) % imageFiles.length;
+            // Untuk demo, kita gunakan placeholder
+            // Dalam implementasi nyata, gunakan: modalImage.src = imageFiles[currentImageIndex];
+            modalImage.src = `${placeholderBase}${currentImageIndex + 1}`;
+        }
+        
+        // Memuat semua gambar ke dalam galeri
+        function loadGallery() {
+            imageFiles.forEach((imagePath, index) => {
+                const card = createImageCard(imagePath, index);
+                gallery.appendChild(card);
+            });
+        }
+        
+        // Event listeners
+        closeModal.addEventListener('click', closeImageModal);
+        nextBtn.addEventListener('click', showNextImage);
+        prevBtn.addEventListener('click', showPrevImage);
+        
+        // Tutup modal saat mengklik di luar gambar
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeImageModal();
+            }
+        });
+        
+        // Navigasi dengan keyboard
+        document.addEventListener('keydown', (e) => {
+            if (modal.style.display === 'flex') {
+                if (e.key === 'ArrowRight') {
+                    showNextImage();
+                } else if (e.key === 'ArrowLeft') {
+                    showPrevImage();
+                } else if (e.key === 'Escape') {
+                    closeImageModal();
+                }
+            }
+        });
+        
+        // Memuat galeri saat halaman siap
+        document.addEventListener('DOMContentLoaded', loadGallery);
+    </script>
+</body>
+</html>
